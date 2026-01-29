@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="ml-64">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+
+        <div class="mb-8 animate-slide-in">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                            <span th:text="${isEdit} ? 'Edit Product' : 'Add New Product'"></span>
+                        </h1>
+
+                        <p class="text-slate-500 ml-13">
+                            <span th:text="${isEdit} ? 'Update the product details' : 'Fill in the details to add a new product to your inventory'"></span>
+                        </p>
+                    </div>
+                    <p class="text-slate-500 ml-13">Fill in the details to add a new product to your inventory</p>
+                </div>
+
+                <a href="/product" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 p-8 border border-slate-200 animate-slide-in">
+            <form id="productForm" method="post" action="/product/save" th:object="${product}">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Product Code -->
+                    <div class="md:col-span-2">
+                        <label for="productCode" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Product Code <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                                </svg>
+                            </div>
+                            <input
+                                    type="text"
+                                    id="productCode"
+                                    name="code"
+                                    th:value="${product.code}"
+                                    placeholder="e.g., PROD-001"
+                                    class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                            />
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500">Unique identifier for the product</p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="productName" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Product Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <input
+                                    type="text"
+                                    id="productName"
+                                    name="name"
+                                    th:value="${product.name}"
+                                    placeholder="e.g., Wireless Mouse"
+                                    class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="quantity" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Quantity <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                                </svg>
+                            </div>
+                            <input
+                                    type="number"
+                                    id="quantity"
+                                    name="quantity"
+                                    th:value="${product.quantity}"
+                                    placeholder="0"
+                                    min="0"
+                                    step="1"
+                                    class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="unitOfMeasure" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Unit of Measure <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <select
+                                    id="unitOfMeasure"
+                                    name="unitOfMeasure"
+                                    th:value="${product.unitOfMeasure}"
+                                    class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
+                                    required
+                            >
+                                <option value="">Select unit...</option>
+                                <option value="PCS">Pieces (PCS)</option>
+                                <option value="KG">Kilograms (KG)</option>
+                                <option value="L">Liters (L)</option>
+                                <option value="M">Meters (M)</option>
+                                <option value="BOX">Box</option>
+                                <option value="PACK">Pack</option>
+                                <option value="SET">Set</option>
+                                <option value="UNIT">Unit</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="price" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Price <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-medium">RON</span>
+                            </div>
+                            <input
+                                    type="number"
+                                    id="price"
+                                    name="price"
+                                    th:value="${product.price}"
+                                    placeholder="0.00"
+                                    min="0"
+                                    step="0.01"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                            />
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500">Enter the unit price</p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="description" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Description <span class="text-slate-400 text-xs">(Optional)</span>
+                        </label>
+                        <textarea
+                                id="description"
+                                name="description"
+                                rows="4"
+                                placeholder="Enter product description..."
+                                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                        ></textarea>
+                    </div>
+
+                </div>
+
+                <div class="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-slate-200">
+                    <a href="/product" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-all">
+                        Cancel
+                    </a>
+                    <button
+                            type="submit"
+                            class="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span th:text="${isEdit} ? 'Update Product' : 'Add Product'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4 animate-slide-in">
+            <div class="flex gap-3">
+                <div class="flex-shrink-0">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-blue-900 mb-1">Quick Tips</h3>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li>• Make sure the product code is unique</li>
+                        <li>• All fields marked with <span class="text-red-600">*</span> are required</li>
+                        <li>• You can edit product details later from the product list</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="successModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-slide-in">
+        <div class="p-6">
+            <div class="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Product Added!</h3>
+            <p class="text-slate-600 text-center mb-6">The product has been successfully added to your inventory.</p>
+            <button onclick="redirectToProductList()" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                View Product List
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function redirectToProductList() {
+        window.location.href = "/product";
+    }
+</script>
+
+</body>
+</html>
