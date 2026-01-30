@@ -30,6 +30,21 @@
             animation: fadeIn 0.2s ease-out;
         }
 
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-slide-in-right {
+            animation: slideInRight 0.3s ease-out;
+        }
+
         .gradient-border {
             background: linear-gradient(white, white) padding-box,
             linear-gradient(135deg, #10b981, #3b82f6) border-box;
@@ -44,87 +59,66 @@
 <div class="ml-64">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
 
-        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 p-8 mb-8 border border-slate-200 animate-slide-in">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                    </svg>
+        <!-- Header Section -->
+        <div class="mb-6 animate-slide-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800 mb-2">Product Management</h1>
+                    <p class="text-slate-600">Manage your inventory and products</p>
                 </div>
-                <h2 class="text-2xl font-semibold text-slate-800">Import Products</h2>
-            </div>
-
-            <form id="importForm" method="post" enctype="multipart/form-data">
-                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    <div class="flex-1 w-full">
-                        <label class="block mb-2 text-sm font-medium text-slate-700">Choose Excel File</label>
-                        <div class="relative">
-                            <input
-                                    type="file"
-                                    name="file"
-                                    accept=".xlsx,.xls"
-                                    id="fileInput"
-                                    class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 file:font-medium hover:file:bg-slate-200 cursor-pointer"
-                                    required
-                            />
-                        </div>
-                        <p class="mt-2 text-xs text-slate-500">Supported formats: .xlsx, .xls</p>
-                    </div>
-                    <button
-                            type="submit"
-                            class="sm:mt-6 px-8 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap"
-                    >
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                            </svg>
-                            Import Products
-                        </span>
+                <div class="flex items-center gap-3">
+                    <button onclick="openImportModal()" class="px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all flex items-center gap-2 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        Import Excel
                     </button>
+                    <a href="/product/add" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Product
+                    </a>
                 </div>
-            </form>
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 overflow-hidden animate-slide-in">
-            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                            </div>
-                            <h2 class="text-2xl font-semibold text-slate-800">Product Inventory</h2>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div th:if="${not #lists.isEmpty(products)}" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
-                                <span th:text="${allProductsCount}"></span> Products
-                            </div>
-                            <a href="/product/add" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
-                                Add Product
-                            </a>
-                        </div>
+        <!-- Stats Cards -->
+        <div class="mb-6 animate-slide-in" th:if="${not #lists.isEmpty(products)}">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-xs">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-600 mb-1">Total Products</p>
+                        <p class="text-2xl font-bold text-slate-800" th:text="${allProductsCount}">0</p>
                     </div>
-
-                    <div th:if="${not #lists.isEmpty(products)}" class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                        <input
-                                type="text"
-                                placeholder="Search products by code or name..."
-                                class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        />
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Product Table -->
+        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 overflow-hidden animate-slide-in">
+            <!-- Search Bar -->
+            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white" th:if="${not #lists.isEmpty(products)}">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input
+                            type="text"
+                            placeholder="Search products by code or name..."
+                            class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    />
+                </div>
+            </div>
+
+            <!-- Table -->
             <div class="overflow-x-auto" th:if="${not #lists.isEmpty(products)}">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead>
@@ -179,7 +173,6 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </a>
-                                <!-- Delete Button -->
                                 <button th:onclick="|showDeleteModal(${product.id})|" class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors group" title="Delete">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -192,9 +185,9 @@
                 </table>
             </div>
 
+            <!-- Pagination -->
             <div th:if="${totalPages > 1}" class="px-6 py-4 border-t border-slate-200 bg-slate-50">
                 <div class="flex items-center justify-between">
-
                     <div class="text-sm text-slate-600">
                         Showing page <span class="font-semibold" th:text="${currentPage + 1}"></span>
                         of <span class="font-semibold" th:text="${totalPages}"></span>
@@ -235,6 +228,7 @@
                 </div>
             </div>
 
+            <!-- Empty State -->
             <div class="py-16 text-center" th:if="${#lists.isEmpty(products)}">
                 <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
                     <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,18 +236,111 @@
                     </svg>
                 </div>
                 <h3 class="text-xl font-semibold text-slate-700 mb-2">No Products Yet</h3>
-                <p class="text-slate-500 mb-6">Import an Excel file to get started with your inventory</p>
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Use the import section above
+                <p class="text-slate-500 mb-6">Get started by adding a product or importing from Excel</p>
+                <div class="flex items-center justify-center gap-3">
+                    <a href="/product/add" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Product
+                    </a>
+                    <button onclick="openImportModal()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        Import Excel
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Import Modal -->
+<div id="importModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full transform transition-all animate-slide-in">
+        <div class="p-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-800">Import Products</h3>
+                </div>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <form id="importForm" method="post" enctype="multipart/form-data" class="p-6">
+            <div class="mb-6">
+                <label class="block mb-3 text-sm font-medium text-slate-700">
+                    Choose Excel File
+                </label>
+                <div class="relative">
+                    <input
+                            type="file"
+                            name="file"
+                            accept=".xlsx,.xls"
+                            id="fileInput"
+                            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-100 file:text-emerald-700 file:font-medium hover:file:bg-emerald-200 cursor-pointer"
+                            required
+                    />
+                </div>
+                <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Supported formats: .xlsx, .xls
+                </p>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                <div class="flex gap-3">
+                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="text-sm text-blue-800">
+                        <p class="font-medium mb-1">Import Tips:</p>
+                        <ul class="space-y-1 text-blue-700">
+                            <li>• Make sure your Excel file has the correct format</li>
+                            <li>• Include all required columns: code, name, quantity, unit, price</li>
+                            <li>• Check for duplicate product codes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button
+                        type="button"
+                        onclick="closeImportModal()"
+                        class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-all"
+                >
+                    Cancel
+                </button>
+                <button
+                        type="submit"
+                        class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        Import
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modal -->
 <div id="myModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in" style="display: none;">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-slide-in">
         <div class="p-6">
@@ -295,6 +382,7 @@
     </div>
 </div>
 
+<!-- Loading Modal -->
 <div id="loadingModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in" style="display: none;">
     <div class="bg-white p-8 rounded-2xl shadow-2xl">
         <div class="flex flex-col items-center gap-4">
@@ -307,6 +395,7 @@
     </div>
 </div>
 
+<!-- Delete Modal -->
 <div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in" style="display: none;">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-slide-in">
         <div class="p-6">
@@ -331,6 +420,17 @@
 </div>
 
 <script>
+    // Import Modal Functions
+    function openImportModal() {
+        document.getElementById("importModal").style.display = "flex";
+    }
+
+    function closeImportModal() {
+        document.getElementById("importModal").style.display = "none";
+        document.getElementById("fileInput").value = "";
+    }
+
+    // General Modal Functions
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
     }
@@ -366,12 +466,15 @@
         }
     }
 
+    // Form Submission
     const form = document.getElementById("importForm");
     form.onsubmit = function(event) {
         event.preventDefault();
-        showLoadingModal();
 
         const formData = new FormData(form);
+
+        closeImportModal();
+        showLoadingModal();
 
         fetch('/products/import', {
             method: 'POST',
