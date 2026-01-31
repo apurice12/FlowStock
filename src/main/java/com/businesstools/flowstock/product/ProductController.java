@@ -17,8 +17,16 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
-        Product productCreated = productService.create(product);
+    public ResponseEntity<Product> create(@RequestBody ProductRequestDTO productRequestDTO) throws Exception {
+
+        Product product = new Product();
+        product.setCode(productRequestDTO.getCode());
+        product.setName(productRequestDTO.getName());
+        product.setPrice(productRequestDTO.getPrice());
+        product.setQuantity(productRequestDTO.getQuantity());
+
+        Product productCreated = productService.create(product, productRequestDTO.getProductCategoryId(), productRequestDTO.getUnitOfMeasureId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(productCreated);
     }
 
@@ -33,8 +41,9 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) throws Exception {
-        return ResponseEntity.ok(productService.update(id, product));
+    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody ProductRequestDTO productRequestDTO) throws Exception {
+
+        return ResponseEntity.ok(productService.update(id, productRequestDTO));
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,9 @@
-package com.businesstools.flowstock.product;
+package com.businesstools.flowstock.controller;
 
+import com.businesstools.flowstock.product.Product;
+import com.businesstools.flowstock.product.ProductImportException;
+import com.businesstools.flowstock.product.ProductImportService;
+import com.businesstools.flowstock.product.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +34,7 @@ public class ProductManagementController {
     @GetMapping("/product")
     public String listProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         Page<Product> productPage = productRepository.findAll(pageable);
 
         model.addAttribute("products", productPage.getContent());
@@ -39,6 +43,8 @@ public class ProductManagementController {
         model.addAttribute("totalItems", productPage.getTotalElements());
 
         model.addAttribute("allProductsCount", productRepository.count());
+
+        model.addAttribute("activePage", "product");
 
         return "/product/product-list";
     }
@@ -59,7 +65,7 @@ public class ProductManagementController {
             List<Product> importedProducts = productImportService.importProductsFromExcel(file);
 
             response.put("success", "Successfully imported " + importedProducts.size() + " products");
-        } catch (IOException e) {
+        } catch (ProductImportException e) {
             response.put("error", "Failed to import products: " + e.getMessage());
         }
 
@@ -72,6 +78,7 @@ public class ProductManagementController {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         model.addAttribute("product", product);
         model.addAttribute("isEdit", true);
+        model.addAttribute("activePage", "product");
         return "/product/product-form";
     }
 

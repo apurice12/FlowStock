@@ -1,6 +1,8 @@
 package com.businesstools.flowstock.product;
 
 
+import com.businesstools.flowstock.productcategory.ProductCategory;
+import com.businesstools.flowstock.unitofmeasure.UnitOfMeasure;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -13,23 +15,35 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String code;
+    @Column
     private String name;
-    private Integer quantity;
-    private String unitOfMeasure;
+    @Column
+    private long quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="unit_of_measure_id", nullable = false)
+    private UnitOfMeasure unitOfMeasure;
+
+    @Column
     private BigDecimal price;
-    private String type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+
+    private ProductCategory productCategory;
 
     public Product() {
     }
 
-    public Product(String code, String name, Integer quantity, String unitOfMeasure, BigDecimal price, String type) {
+    public Product(String code, String name, Integer quantity, UnitOfMeasure unitOfMeasure, BigDecimal price, ProductCategory productCategory) {
         this.code = code;
         this.name = name;
         this.quantity = quantity;
         this.unitOfMeasure = unitOfMeasure;
         this.price = price;
-        this.type = type;
+        this.productCategory = productCategory;
     }
 
     public Long getId() {return id;
@@ -55,19 +69,19 @@ public class Product {
         this.name = name;
     }
 
-    public Integer getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 
-    public String getUnitOfMeasure() {
+    public UnitOfMeasure getUnitOfMeasure() {
         return unitOfMeasure;
     }
 
-    public void setUnitOfMeasure(String unitOfMeasure) {
+    public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
         this.unitOfMeasure = unitOfMeasure;
     }
 
@@ -79,11 +93,11 @@ public class Product {
         this.price = price;
     }
 
-    public String getType() {
-        return type;
+    public ProductCategory getProductCategory() {
+        return productCategory;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
     }
 }

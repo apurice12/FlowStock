@@ -1,12 +1,15 @@
 package com.businesstools.flowstock.product;
 
+import com.businesstools.flowstock.productcategory.ProductCategory;
+import com.businesstools.flowstock.productcategory.ProductCategoryRepository;
+import com.businesstools.flowstock.unitofmeasure.UnitOfMeasure;
+import com.businesstools.flowstock.unitofmeasure.UnitOfMeasureRepository;
+import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,13 +20,21 @@ import java.util.List;
 public class ProductImportService {
 
     private final ProductRepository productRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final UnitOfMeasureRepository unitOfMeasureRepository;
 
-    public ProductImportService(ProductRepository productRepository) {
+    public ProductImportService(ProductRepository productRepository,
+                                ProductCategoryRepository productCategoryRepository,
+                                UnitOfMeasureRepository unitOfMeasureRepository) {
         this.productRepository = productRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.unitOfMeasureRepository = unitOfMeasureRepository;
     }
 
-    public List<Product> importProductsFromExcel(MultipartFile file) throws IOException {
-        List<Product> products = new ArrayList<>();
+    @Transactional
+    public List<Product> importProductsFromExcel(MultipartFile file) {
+
+        List<Product> importedProducts = new ArrayList<>();
 
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -36,66 +47,79 @@ public class ProductImportService {
             }
 
             while (rows.hasNext()) {
-                Row currentRow = rows.next();
+                Row row = rows.next();
 
-                if (isRowEmpty(currentRow)) {
+                if (isRowEmpty(row)) {
                     continue;
                 }
 
-                Product product = parseRowToProduct(currentRow);
-
-                if (product != null) {
-                    Product savedProduct = productRepository.save(product);
-                    products.add(savedProduct);
-                }
+                Product product = parseRowToProduct(row);
+                importedProducts.add(productRepository.save(product));
             }
+
+        } catch (Exception e) {
+            throw new ProductImportException("Import failed: " + e.getMessage());
         }
 
-        return products;
+        return importedProducts;
     }
 
     private Product parseRowToProduct(Row row) {
-        try {
-            Product product = new Product();
 
-            // Column 0: Cod Articol (Code)
-            Cell codeCell = row.getCell(0);
-            if (codeCell != null) {
-                product.setCode(getCellValueAsString(codeCell));
-            }
+        int rowNumber = row.getRowNum() + 1;
 
-            // Column 1: Nume Articol (Name)
-            Cell nameCell = row.getCell(1);
-            if (nameCell != null) {
-                product.setName(getCellValueAsString(nameCell));
-            }
+        Product product = new Product();
 
-            // Column 2: Cant UM Aprov (Quantity)
-            Cell quantityCell = row.getCell(2);
-            if (quantityCell != null) {
-                product.setQuantity(getCellValueAsInteger(quantityCell));
-            }
+        product.setCode(getCellValueAsString(row.getCell(0)));
+        product.setName(getCellValueAsString(row.getCell(1)));
+        product.setQuantity(getCellValueAsInteger(row.getCell(2)));
+        String unitOfMeasureCode = getCellValueAsString(row.getCell(3));
+        UnitOfMeasure unitOfMeasure = resolveUnitOfMeasure(unitOfMeasureCode, rowNumber);
+        product.setPrice(getCellValueAsBigDecimal(row.getCell(4)));
+        String categoryCode = getCellValueAsString(row.getCell(5));
+        ProductCategory category = resolveCategory(categoryCode, rowNumber);
 
-            // Column 3: UM Aprov (Unit of Measure)
-            Cell unitCell = row.getCell(3);
-            if (unitCell != null) {
-                product.setUnitOfMeasure(getCellValueAsString(unitCell));
-            }
+        product.setUnitOfMeasure(unitOfMeasure);
+        product.setProductCategory(category);
 
-            // Column 5: Cost Mediu Unitar (Price - using average unit cost)
-            Cell priceCell = row.getCell(5);
-            if (priceCell != null) {
-                product.setPrice(getCellValueAsBigDecimal(priceCell));
-            }
+        return product;
+    }
 
-            product.setType(null);
 
-            return product;
+    private ProductCategory resolveCategory(String rawCode, int rowNumber) {
 
-        } catch (Exception e) {
-            System.err.println("Error parsing row: " + e.getMessage());
-            return null;
+        if (rawCode == null || rawCode.isBlank()) {
+            throw new ProductImportException(
+                    "Missing category code at row " + rowNumber
+            );
         }
+
+        String code = rawCode.trim().toUpperCase();
+
+        return productCategoryRepository.findByCode(code)
+                .orElseThrow(() ->
+                        new ProductImportException(
+                                "Product category code '" + code + "' does not exist at row " + rowNumber +
+                                        ". Please create it first in the Data Center.")
+                );
+    }
+
+    private UnitOfMeasure resolveUnitOfMeasure(String rawCode, int rowNumber) {
+
+        if (rawCode == null || rawCode.isBlank()) {
+            throw new ProductImportException(
+                    "Missing unit of measure code at row " + rowNumber
+            );
+        }
+
+        String code = rawCode.trim().toUpperCase();
+
+        return unitOfMeasureRepository.findByCode(code)
+                .orElseThrow(() ->
+                        new ProductImportException(
+                                "Unit of measure code '" + code + "' does not exist at row " + rowNumber +
+                                        ". Please create it first in the Data Center.")
+                );
     }
 
     private String getCellValueAsString(Cell cell) {
@@ -103,22 +127,13 @@ public class ProductImportService {
             return "";
         }
 
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
-                } else {
-                    return String.valueOf((long) cell.getNumericCellValue());
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "";
-        }
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            case FORMULA -> cell.getCellFormula();
+            default -> "";
+        };
     }
 
     private Integer getCellValueAsInteger(Cell cell) {
@@ -126,18 +141,17 @@ public class ProductImportService {
             return 0;
         }
 
-        switch (cell.getCellType()) {
-            case NUMERIC:
-                return (int) cell.getNumericCellValue();
-            case STRING:
+        return switch (cell.getCellType()) {
+            case NUMERIC -> (int) cell.getNumericCellValue();
+            case STRING -> {
                 try {
-                    return Integer.parseInt(cell.getStringCellValue());
+                    yield Integer.parseInt(cell.getStringCellValue());
                 } catch (NumberFormatException e) {
-                    return 0;
+                    yield 0;
                 }
-            default:
-                return 0;
-        }
+            }
+            default -> 0;
+        };
     }
 
     private BigDecimal getCellValueAsBigDecimal(Cell cell) {
@@ -145,18 +159,17 @@ public class ProductImportService {
             return BigDecimal.ZERO;
         }
 
-        switch (cell.getCellType()) {
-            case NUMERIC:
-                return BigDecimal.valueOf(cell.getNumericCellValue());
-            case STRING:
+        return switch (cell.getCellType()) {
+            case NUMERIC -> BigDecimal.valueOf(cell.getNumericCellValue());
+            case STRING -> {
                 try {
-                    return new BigDecimal(cell.getStringCellValue());
+                    yield new BigDecimal(cell.getStringCellValue());
                 } catch (NumberFormatException e) {
-                    return BigDecimal.ZERO;
+                    yield BigDecimal.ZERO;
                 }
-            default:
-                return BigDecimal.ZERO;
-        }
+            }
+            default -> BigDecimal.ZERO;
+        };
     }
 
     private boolean isRowEmpty(Row row) {
@@ -172,5 +185,4 @@ public class ProductImportService {
         }
         return true;
     }
-
 }
