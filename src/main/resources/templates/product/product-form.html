@@ -48,14 +48,12 @@
                             </svg>
                         </div>
                         <h1 class="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                            <span th:text="${isEdit} ? 'Edit Product' : 'Add New Product'"></span>
+                            <span th:text="${isEdit} ? 'Edit Product' : 'Add New Product'">Add New Product</span>
                         </h1>
-
-                        <p class="text-slate-500 ml-13">
-                            <span th:text="${isEdit} ? 'Update the product details' : 'Fill in the details to add a new product to your inventory'"></span>
-                        </p>
                     </div>
-                    <p class="text-slate-500 ml-13">Fill in the details to add a new product to your inventory</p>
+                    <p class="text-slate-500 ml-13">
+                        <span th:text="${isEdit} ? 'Update the product details' : 'Fill in the details to add a new product to your inventory'">Fill in the details to add a new product to your inventory</span>
+                    </p>
                 </div>
 
                 <a href="/product" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition-all flex items-center gap-2">
@@ -87,8 +85,7 @@
                             <input
                                     type="text"
                                     id="productCode"
-                                    name="code"
-                                    th:value="${product.code}"
+                                    th:field="*{code}"
                                     placeholder="e.g., PROD-001"
                                     class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     required
@@ -97,6 +94,7 @@
                         <p class="mt-1 text-xs text-slate-500">Unique identifier for the product</p>
                     </div>
 
+                    <!-- Product Name -->
                     <div class="md:col-span-2">
                         <label for="productName" class="block mb-2 text-sm font-semibold text-slate-700">
                             Product Name <span class="text-red-500">*</span>
@@ -110,8 +108,7 @@
                             <input
                                     type="text"
                                     id="productName"
-                                    name="name"
-                                    th:value="${product.name}"
+                                    th:field="*{name}"
                                     placeholder="e.g., Wireless Mouse"
                                     class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     required
@@ -119,6 +116,38 @@
                         </div>
                     </div>
 
+                    <!-- Product Category -->
+                    <div class="md:col-span-2">
+                        <label for="productCategory" class="block mb-2 text-sm font-semibold text-slate-700">
+                            Product Category <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                </svg>
+                            </div>
+                            <select
+                                    id="productCategory"
+                                    th:field="*{productCategory}"
+                                    class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
+                                    required
+                            >
+                                <option value="">Select category...</option>
+                                <option th:each="category : ${categories}"
+                                        th:value="${category.id}"
+                                        th:text="${category.name}">
+                                </option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
                     <div>
                         <label for="quantity" class="block mb-2 text-sm font-semibold text-slate-700">
                             Quantity <span class="text-red-500">*</span>
@@ -132,8 +161,7 @@
                             <input
                                     type="number"
                                     id="quantity"
-                                    name="quantity"
-                                    th:value="${product.quantity}"
+                                    th:field="*{quantity}"
                                     placeholder="0"
                                     min="0"
                                     step="1"
@@ -143,6 +171,7 @@
                         </div>
                     </div>
 
+                    <!-- Unit of Measure -->
                     <div>
                         <label for="unitOfMeasure" class="block mb-2 text-sm font-semibold text-slate-700">
                             Unit of Measure <span class="text-red-500">*</span>
@@ -150,25 +179,20 @@
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
                                 </svg>
                             </div>
                             <select
                                     id="unitOfMeasure"
-                                    name="unitOfMeasure"
-                                    th:value="${product.unitOfMeasure}"
+                                    th:field="*{unitOfMeasure}"
                                     class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
                                     required
                             >
                                 <option value="">Select unit...</option>
-                                <option value="PCS">Pieces (PCS)</option>
-                                <option value="KG">Kilograms (KG)</option>
-                                <option value="L">Liters (L)</option>
-                                <option value="M">Meters (M)</option>
-                                <option value="BOX">Box</option>
-                                <option value="PACK">Pack</option>
-                                <option value="SET">Set</option>
-                                <option value="UNIT">Unit</option>
+                                <option th:each="unit : ${units}"
+                                        th:value="${unit.id}"
+                                        th:text="${unit.name + ' (' + unit.code + ')'}">
+                                </option>
                             </select>
                             <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,40 +202,27 @@
                         </div>
                     </div>
 
+                    <!-- Price -->
                     <div class="md:col-span-2">
                         <label for="price" class="block mb-2 text-sm font-semibold text-slate-700">
-                            Price <span class="text-red-500">*</span>
+                            Price (RON) <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <span class="text-slate-400 font-medium">$</span>
+                                <span class="text-slate-400 font-medium">RON</span>
                             </div>
                             <input
                                     type="number"
                                     id="price"
-                                    name="price"
-                                    th:value="${product.price}"
+                                    th:field="*{price}"
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    class="w-full pl-16 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     required
                             />
                         </div>
-                        <p class="mt-1 text-xs text-slate-500">Enter the unit price</p>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label for="description" class="block mb-2 text-sm font-semibold text-slate-700">
-                            Description <span class="text-slate-400 text-xs">(Optional)</span>
-                        </label>
-                        <textarea
-                                id="description"
-                                name="description"
-                                rows="4"
-                                placeholder="Enter product description..."
-                                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
-                        ></textarea>
+                        <p class="mt-1 text-xs text-slate-500">Enter the unit price in Romanian Lei</p>
                     </div>
 
                 </div>
@@ -227,7 +238,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span th:text="${isEdit} ? 'Update Product' : 'Add Product'"></span>
+                        <span th:text="${isEdit} ? 'Update Product' : 'Add Product'">Add Product</span>
                     </button>
                 </div>
             </form>
@@ -262,8 +273,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-            <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Product Added!</h3>
-            <p class="text-slate-600 text-center mb-6">The product has been successfully added to your inventory.</p>
+            <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Product Saved!</h3>
+            <p class="text-slate-600 text-center mb-6">The product has been successfully saved to your inventory.</p>
             <button onclick="redirectToProductList()" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 View Product List
             </button>

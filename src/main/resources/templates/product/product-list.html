@@ -129,6 +129,9 @@
                         <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                             Product Name
                         </th>
+                        <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+                            Category
+                        </th>
                         <th class="py-4 px-6 text-center text-sm font-semibold uppercase tracking-wider">
                             Quantity
                         </th>
@@ -155,14 +158,23 @@
                         <td class="py-4 px-6">
                             <span class="text-sm font-medium text-slate-900" th:text="${product.name}"></span>
                         </td>
+                        <td class="py-4 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                      th:text="${product.productCategory != null ? product.productCategory.name : 'N/A'}">
+                    Category
+                </span>
+                        </td>
                         <td class="py-4 px-6 text-center">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800" th:text="${product.quantity}"></span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-slate-100 text-slate-800" th:text="${product.quantity}"></span>
                         </td>
                         <td class="py-4 px-6">
-                            <span class="text-sm text-slate-600" th:text="${product.unitOfMeasure}"></span>
+                            <span class="text-sm text-slate-600" th:text="${product.unitOfMeasure != null ? product.unitOfMeasure.name : 'N/A'}"></span>
                         </td>
                         <td class="py-4 px-6 text-right">
-                            <span class="text-sm font-semibold text-slate-900" th:text="${#numbers.formatDecimal(product.price, 1, 2)}"></span>
+                            <div class="flex items-center justify-end gap-1">
+                                <span class="text-sm font-semibold text-slate-900" th:text="${#numbers.formatDecimal(product.price, 1, 2)}"></span>
+                                <span class="text-xs text-slate-500 font-medium">RON</span>
+                            </div>
                         </td>
                         <td class="py-4 px-6">
                             <div class="flex items-center justify-center gap-2">
@@ -173,7 +185,10 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </a>
-                                <button th:onclick="|showDeleteModal(${product.id})|" class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors group" title="Delete">
+                                <button th:data-id="${product.id}"
+                                        onclick="showDeleteModal(this.dataset.id)"
+                                        class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors group"
+                                        title="Delete">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
@@ -238,7 +253,7 @@
                 <h3 class="text-xl font-semibold text-slate-700 mb-2">No Products Yet</h3>
                 <p class="text-slate-500 mb-6">Get started by adding a product or importing from Excel</p>
                 <div class="flex items-center justify-center gap-3">
-                    <a href="/product/edit/" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                    <a href="/product/edit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
