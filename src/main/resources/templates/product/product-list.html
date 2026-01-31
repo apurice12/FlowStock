@@ -100,22 +100,46 @@
             </div>
         </div>
 
+        <!-- Category Filter -->
+        <div th:replace="~{fragments/filter :: categoryFilter(${categories}, ${selectedCategoryId}, '/product')}"
+             th:if="${not #lists.isEmpty(categories)}"></div>
+
         <!-- Product Table -->
         <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 overflow-hidden animate-slide-in">
             <!-- Search Bar -->
             <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white" th:if="${not #lists.isEmpty(products)}">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
+                <form method="get" action="/product">
+                    <input type="hidden" name="categoryId" th:value="${selectedCategoryId}" />
+                    <input type="hidden" name="page" value="0" />
+                    <input type="hidden" name="size" value="10" />
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input
+                                type="text"
+                                name="search"
+                                th:value="${searchQuery}"
+                                placeholder="Search products by code or name..."
+                                class="w-full pl-12 pr-24 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                        <div class="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+                            <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                                Search
+                            </button>
+                            <a th:href="@{/product(categoryId=${selectedCategoryId}, page=0, size=10)}"
+                               th:if="${searchQuery != null and searchQuery != ''}"
+                               class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                               title="Clear search">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
-                    <input
-                            type="text"
-                            placeholder="Search products by code or name..."
-                            class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    />
-                </div>
+                </form>
             </div>
 
             <!-- Table -->
@@ -159,10 +183,10 @@
                             <span class="text-sm font-medium text-slate-900" th:text="${product.name}"></span>
                         </td>
                         <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      th:text="${product.productCategory != null ? product.productCategory.name : 'N/A'}">
-                    Category
-                </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                  th:text="${product.productCategory != null ? product.productCategory.name : 'N/A'}">
+                                Category
+                            </span>
                         </td>
                         <td class="py-4 px-6 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-slate-100 text-slate-800" th:text="${product.quantity}"></span>
@@ -210,7 +234,7 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <a th:href="@{/product(page=${currentPage - 1}, size=10)}"
+                        <a th:href="@{/product(categoryId=${selectedCategoryId}, search=${searchQuery}, page=${currentPage - 1}, size=10)}"
                            th:if="${currentPage > 0}"
                            class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
                             Previous
@@ -223,14 +247,14 @@
                         <div class="hidden sm:flex gap-2">
                             <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                                th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
-                               th:href="@{/product(page=${i}, size=10)}"
+                               th:href="@{/product(categoryId=${selectedCategoryId}, search=${searchQuery}, page=${i}, size=10)}"
                                th:text="${i + 1}"
                                th:classappend="${i == currentPage} ? 'bg-blue-500 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'"
                                class="px-4 py-2 border border-slate-300 rounded-lg transition-colors">
                             </a>
                         </div>
 
-                        <a th:href="@{/product(page=${currentPage + 1}, size=10)}"
+                        <a th:href="@{/product(categoryId=${selectedCategoryId}, search=${searchQuery}, page=${currentPage + 1}, size=10)}"
                            th:if="${currentPage < totalPages - 1}"
                            class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
                             Next
@@ -324,7 +348,7 @@
                         <p class="font-medium mb-1">Import Tips:</p>
                         <ul class="space-y-1 text-blue-700">
                             <li>• Make sure your Excel file has the correct format</li>
-                            <li>• Include all required columns: code, name, quantity, unit, price, type</li>
+                            <li>• Include all required columns: code, name, quantity, unit, price, category</li>
                             <li>• Check for duplicate product codes</li>
                         </ul>
                     </div>

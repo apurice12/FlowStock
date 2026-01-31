@@ -40,19 +40,41 @@ public class ProductManagementController {
 
 
     @GetMapping("/product")
-    public String listProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        model.addAttribute("products", productPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("totalItems", productPage.getTotalElements());
-
-        model.addAttribute("allProductsCount", productRepository.count());
+    public String listProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String search,
+            Model model) {
 
         model.addAttribute("activePage", "product");
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage;
+
+        if (search != null && !search.trim().isEmpty()) {
+            if (categoryId != null) {
+                productPage = productRepository.findByProductCategoryIdAndCodeContainingIgnoreCaseOrProductCategoryIdAndNameContainingIgnoreCase(
+                        categoryId, search, categoryId, search, pageable);
+            } else {
+                productPage = productRepository.findByCodeContainingIgnoreCaseOrNameContainingIgnoreCase(
+                        search, search, pageable);
+            }
+            model.addAttribute("searchQuery", search);
+        } else if (categoryId != null) {
+            productPage = productRepository.findByProductCategoryId(categoryId, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", productPage.getNumber());
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalItems", productPage.getTotalElements());
+        model.addAttribute("allProductsCount", productRepository.count());
+
+        model.addAttribute("categories", productCategoryRepository.findAll());
+        model.addAttribute("selectedCategoryId", categoryId);
 
         return "/product/product-list";
     }
