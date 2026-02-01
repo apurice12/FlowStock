@@ -1,5 +1,7 @@
 package com.businesstools.flowstock.controller;
 
+import com.businesstools.flowstock.orderstatus.OrderStatus;
+import com.businesstools.flowstock.orderstatus.OrderStatusRepository;
 import com.businesstools.flowstock.productcategory.ProductCategory;
 import com.businesstools.flowstock.productcategory.ProductCategoryRepository;
 import com.businesstools.flowstock.unitofmeasure.UnitOfMeasure;
@@ -16,10 +18,12 @@ public class DataDictionaryManagementController {
 
     private final ProductCategoryRepository productCategoryRepository;
     private final UnitOfMeasureRepository unitOfMeasureRepository;
+    private final OrderStatusRepository orderStatusRepository;
 
-    public DataDictionaryManagementController(ProductCategoryRepository productCategoryRepository, UnitOfMeasureRepository unitOfMeasureRepository) {
+    public DataDictionaryManagementController(ProductCategoryRepository productCategoryRepository, UnitOfMeasureRepository unitOfMeasureRepository, OrderStatusRepository orderStatusRepository) {
         this.productCategoryRepository = productCategoryRepository;
         this.unitOfMeasureRepository = unitOfMeasureRepository;
+        this.orderStatusRepository = orderStatusRepository;
     }
 
     @GetMapping("/data-center")
@@ -27,6 +31,7 @@ public class DataDictionaryManagementController {
         model.addAttribute("activePage", "data-center");
         model.addAttribute("productCategoryCount", productCategoryRepository.count());
         model.addAttribute("unitOfMeasureCount", unitOfMeasureRepository.count());
+        model.addAttribute("orderStatusCount", orderStatusRepository.count());
         return "/data-center/data-center-list";
     }
 
@@ -137,5 +142,64 @@ public class DataDictionaryManagementController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete unit.");
         }
         return "redirect:/data-center/unit-of-measure";
+    }
+
+    //
+    @GetMapping("/data-center/order-status")
+    public String getOrderStatus(Model model) {
+        model.addAttribute("activePage", "data-center");
+        model.addAttribute("orderStatus", orderStatusRepository.findAll());
+        return "/data-center/order-status-list";
+    }
+
+    @PostMapping("/data-center/order-status/add")
+    public String addOrderStatus(@RequestParam String code, @RequestParam String name, RedirectAttributes redirectAttributes) {
+        try {
+            OrderStatus orderStatus = new OrderStatus(code, name);
+            orderStatusRepository.save(orderStatus);
+            redirectAttributes.addFlashAttribute("successMessage", "Order Status added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to add order status Code might already exist.");
+        }
+        return "redirect:/data-center/order-status";
+    }
+
+    @PostMapping("/data-center/order-status/edit")
+    public String editOrderStatus(@RequestParam Long id, @RequestParam String code, @RequestParam String name, RedirectAttributes redirectAttributes) {
+        try {
+            OrderStatus unit = orderStatusRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Order Status not found"));
+            unit.setCode(code);
+            unit.setName(name);
+            orderStatusRepository.save(unit);
+            redirectAttributes.addFlashAttribute("successMessage", "Order status updated successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update order status.");
+        }
+        return "redirect:/data-center/order-status";
+    }
+
+    @GetMapping("/data-center/order-status/delete/{id}")
+    public String deleteOrderStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            OrderStatus orderStatus = orderStatusRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Order status not found"));
+
+            //TODO validation
+            /*
+            if (unit.getProducts() != null && !unit.getProducts().isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Cannot delete unit. It has " + unit.getProducts().size() + " associated products.");
+                return "redirect:/data-center/unit-of-measure";
+            }
+
+             */
+
+            orderStatusRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Order status deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete order status.");
+        }
+        return "redirect:/data-center/order-status";
     }
 }

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="ml-64">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+
+        <!-- Header Section -->
+        <div class="mb-6 animate-slide-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800 mb-2">Customer Management</h1>
+                    <p class="text-slate-600">Manage your customer database</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/customer/edit" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="mb-6 animate-slide-in" th:if="${not #lists.isEmpty(customers)}">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-xs">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-600 mb-1">Total Customers</p>
+                        <p class="text-2xl font-bold text-slate-800" th:text="${allCustomersCount}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Table -->
+        <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 overflow-hidden animate-slide-in">
+            <!-- Search Bar -->
+            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white" th:if="${not #lists.isEmpty(customers)}">
+                <form method="get" action="/customer">
+                    <input type="hidden" name="page" value="0" />
+                    <input type="hidden" name="size" value="10" />
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input
+                                type="text"
+                                name="search"
+                                th:value="${searchQuery}"
+                                placeholder="Search customers by name or email..."
+                                class="w-full pl-12 pr-24 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                        <div class="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+                            <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                                Search
+                            </button>
+                            <a th:href="@{/customer(page=0, size=10)}"
+                               th:if="${searchQuery != null and searchQuery != ''}"
+                               class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                               title="Clear search">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto" th:if="${not #lists.isEmpty(customers)}">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead>
+                    <tr class="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+                        <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+                            Phone
+                        </th>
+                        <th class="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+                            Address
+                        </th>
+                        <th class="py-4 px-6 text-center text-sm font-semibold uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100">
+                    <tr th:each="customer : ${customers}" class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-semibold text-slate-900" th:text="${customer.name}"></span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="text-sm text-slate-600" th:text="${customer.email}"></span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="text-sm text-slate-600" th:text="${customer.phone}"></span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="text-sm text-slate-600" th:text="${customer.address != null ? customer.address : 'N/A'}"></span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center justify-center gap-2">
+                                <!-- View Details -->
+                                <a th:href="@{/customer/details/{id}(id=${customer.id})}"
+                                   class="p-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors"
+                                   title="View Details">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                <!-- Edit -->
+                                <a th:href="@{/customer/edit/{id}(id=${customer.id})}"
+                                   class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                                   title="Edit">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                <!-- Delete -->
+                                <button th:data-id="${customer.id}"
+                                        onclick="showDeleteModal(this.dataset.id)"
+                                        class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                                        title="Delete">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-slate-600">
+                        Showing page <span class="font-semibold" th:text="${currentPage + 1}"></span>
+                        of <span class="font-semibold" th:text="${totalPages}"></span>
+                        (<span th:text="${totalItems}"></span> total customers)
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <a th:href="@{/customer(search=${searchQuery}, page=${currentPage - 1}, size=10)}"
+                           th:if="${currentPage > 0}"
+                           class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+                            Previous
+                        </a>
+                        <span th:unless="${currentPage > 0}"
+                              class="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-400 rounded-lg cursor-not-allowed">
+                            Previous
+                        </span>
+
+                        <div class="hidden sm:flex gap-2">
+                            <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                               th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                               th:href="@{/customer(search=${searchQuery}, page=${i}, size=10)}"
+                               th:text="${i + 1}"
+                               th:classappend="${i == currentPage} ? 'bg-blue-500 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'"
+                               class="px-4 py-2 border border-slate-300 rounded-lg transition-colors">
+                            </a>
+                        </div>
+
+                        <a th:href="@{/customer(search=${searchQuery}, page=${currentPage + 1}, size=10)}"
+                           th:if="${currentPage < totalPages - 1}"
+                           class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+                            Next
+                        </a>
+                        <span th:unless="${currentPage < totalPages - 1}"
+                              class="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-400 rounded-lg cursor-not-allowed">
+                            Next
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="py-16 text-center" th:if="${#lists.isEmpty(customers)}">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-700 mb-2">No Customers Yet</h3>
+                <p class="text-slate-500 mb-6">Get started by adding your first customer</p>
+                <a href="/customer/edit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Customer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+        <div class="p-6">
+            <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Delete Customer?</h3>
+            <p class="text-slate-600 text-center mb-6">Are you sure you want to delete this customer? This action cannot be undone.</p>
+
+            <div class="flex items-center gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-all">
+                    Cancel
+                </button>
+                <button onclick="confirmDelete()" class="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg transition-all">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let customerIdToDelete = null;
+
+    function showDeleteModal(customerId) {
+        customerIdToDelete = customerId;
+        document.getElementById("deleteModal").style.display = "flex";
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+        customerIdToDelete = null;
+    }
+
+    function confirmDelete() {
+        if (customerIdToDelete) {
+            window.location.href = "/customer/delete/" + customerIdToDelete;
+        }
+    }
+</script>
+
+</body>
+</html>
