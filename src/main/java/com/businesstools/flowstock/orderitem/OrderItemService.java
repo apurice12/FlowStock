@@ -28,7 +28,7 @@ public class OrderItemService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found" + orderId));
 
-        if (!order.getStatus().getCode().equals("DRAFT")) {
+        if (!order.getStatus().getCode().equals("CREATED")) {
             throw new IllegalStateException("Order cannot be modified in status: " + order.getStatus().getName());
         }
 
@@ -41,20 +41,39 @@ public class OrderItemService {
                 .orElse(null);
 
         if (orderItem != null) {
-            orderItem.setQuantity(orderItem.getQuantity() + quantity);
-            orderItem.setLineTotal(orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+            int newQty = orderItem.getQuantity() + quantity;
+
+            if (product.getQuantity() < quantity) {
+                throw new IllegalStateException("Not enough stock");
+            }
+
+            orderItem.setQuantity(newQty);
+            orderItem.setLineTotal(
+                    orderItem.getUnitPrice().multiply(BigDecimal.valueOf(newQty))
+            );
+
+            product.setQuantity(product.getQuantity() - quantity);
         } else {
+            if (product.getQuantity() < quantity) {
+                throw new IllegalStateException("Not enough stock");
+            }
+
             orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setUnitPrice(product.getPrice());
             orderItem.setQuantity(quantity);
-            orderItem.setLineTotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+            orderItem.setLineTotal(
+                    product.getPrice().multiply(BigDecimal.valueOf(quantity))
+            );
+
             order.getItems().add(orderItem);
+            product.setQuantity(product.getQuantity() - quantity);
         }
 
         recalculateTotals(order);
         orderRepository.save(order);
+        productRepository.save(product);
 
         return orderItem;
     }
@@ -86,7 +105,7 @@ public class OrderItemService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
-        if (!order.getStatus().getCode().equals(OrderStatusConstants.DRAFT)) {
+        if (!order.getStatus().getCode().equals(OrderStatusConstants.CREATED)) {
             throw new IllegalStateException("Order cannot be modified in status: " + order.getStatus().getName());
         }
 

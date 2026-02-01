@@ -10,7 +10,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByCustomerId(Long customerId);
 
-    // Find by status
-    Page<Order> findByStatusCode(String statusCode, Pageable pageable);
+    Page<Order> findByStatusId(Long statusId, Pageable pageable);
+
+    Page<Order> findByCustomer_NameContainingIgnoreCase(
+            String name,
+            Pageable pageable
+    );
+
+    Page<Order> findByStatusIdAndCustomer_NameContainingIgnoreCase(
+            Long statusId,
+            String name,
+            Pageable pageable
+    );
 
 }

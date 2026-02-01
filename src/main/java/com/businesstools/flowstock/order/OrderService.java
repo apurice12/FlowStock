@@ -22,7 +22,7 @@ public class OrderService {
     private final OrderStatusRepository orderStatusRepository;
     private final CustomerRepository customerRepository;
 
-    private static final BigDecimal TAX_RATE = new BigDecimal("0.19");
+    private static final BigDecimal TAX_RATE = new BigDecimal("0.19"); // 19% VAT
 
     public OrderService(OrderRepository orderRepository,
                         OrderStatusRepository orderStatusRepository,
@@ -36,13 +36,13 @@ public class OrderService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + customerId));
 
-        OrderStatus draftStatus = orderStatusRepository.findByCode(OrderStatusConstants.DRAFT)
-                .orElseThrow(() -> new IllegalStateException("Draft Order Status Not Found"));
+        OrderStatus createdStatus = orderStatusRepository.findByCode(OrderStatusConstants.CREATED)
+                .orElseThrow(() -> new IllegalStateException("Created Order Status Not Found"));
 
         Order order = new Order();
         order.setOrderNumber(generateOrderNumber());
         order.setCustomer(customer);
-        order.setStatus(draftStatus);
+        order.setStatus(createdStatus);
         order.setCreatedAt(LocalDateTime.now());
         order.setTotalAmount(BigDecimal.ZERO);
         order.setTotalTax(BigDecimal.ZERO);
@@ -52,7 +52,6 @@ public class OrderService {
     }
 
     public void recalculateOrderTotals(Long orderId) {
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
@@ -76,8 +75,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
-        if (!order.getStatus().getCode().equals(OrderStatusConstants.DRAFT)) {
-            throw new IllegalStateException("Only draft orders can be confirmed");
+        if (!order.getStatus().getCode().equals(OrderStatusConstants.CREATED)) {
+            throw new IllegalStateException("Only created orders can be confirmed");
         }
 
         if (order.getItems().isEmpty()) {
