@@ -91,7 +91,6 @@ public class ProductManagementController {
         }
 
         try {
-            // Simulate import logic
             List<Product> importedProducts = productImportService.importProductsFromExcel(file);
 
             response.put("success", "Successfully imported " + importedProducts.size() + " products");
@@ -123,7 +122,6 @@ public class ProductManagementController {
         model.addAttribute("product", product);
         model.addAttribute("isEdit", true);
 
-        // Add categories and units for dropdowns
         model.addAttribute("categories", productCategoryRepository.findAll());
         model.addAttribute("units", unitOfMeasureRepository.findAll());
 
